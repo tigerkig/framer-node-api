@@ -358,8 +358,27 @@ exports.updateCheckOut = async(req, res) => {
     });
     return;
   }
+  var bonus = 0
   const id = req.body.id
   const lineItems = req.body.lineItems
+  var USBCUSBC = req.body.lineItems.find(item => item.type === 'usbCtoUsb')?.quantity
+  var USBCLGT = req.body.lineItems.find(item => item.type === 'usbCtoLightning')?.quantity
+  var FREEBONUS = req.body.lineItems.find(item => item.type === 'freeBonusLuxUsbC').quantity
+  if(!USBCUSBC) USBCUSBC = 0
+  if(!USBCLGT) USBCLGT = 0
+
+  if(USBCUSBC == 0 && USBCLGT == 0)
+    bonus = 0
+  else
+    bonus = Math.abs(Math.ceil((USBCUSBC + USBCLGT) / 2 - 1))
+
+  if(bonus + 1 !== FREEBONUS) {
+    res.status(400).send({
+      message: "We can't continue checkout."
+    });
+    return;
+  }
+
   const formattedLineItems = lineItems.map(item => {
     return `{
       variantId: "${item.variantId}",
