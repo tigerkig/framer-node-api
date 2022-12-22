@@ -310,6 +310,14 @@ exports.createCheckOut = async(req, res) => {
     });
     return;
   }
+  
+  if(req.body.quantity > 1) {
+    res.status(400).send({
+      message: "We can't continue checkout."
+    });
+    return;
+  } 
+
   const query =
   `mutation 
     {
